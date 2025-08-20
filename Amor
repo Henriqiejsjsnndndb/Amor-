@@ -1,3 +1,10 @@
+#!/data/data/com.termux/files/usr/bin/python
+
+import os
+import subprocess
+
+# Conteúdo do arquivo index.html
+html_content = """
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -54,28 +61,65 @@
     <div id="mensagem">
         <div id="titulo">𝑨𝒎𝒐𝒓</div>
         <div id="texto">
-            Amor, eu só queria dizer o quanto eu sou feliz de estar com você. Mesmo fazendo pouco tempo que a gente tá junto, já sinto que é algo muito especial. Você tem um sorriso lindo que me encanta de um jeito único, e além disso, você é muito fofinha, o que só me deixa ainda mais apaixonado por você. 💖✨
+            Amor, eu sei que às vezes você pode se sentir insegura, mas quero que saiba de uma coisa: eu te amo demais. Você é muito especial para mim e nunca, nunca vou te largar. Cada momento ao seu lado é importante, e eu valorizo cada pedacinho de você. Não importa o que aconteça, eu estou aqui, sempre ao seu lado, te apoiando e te amando do jeito que você merece. 💖
         </div>
     </div>
     <script>
         function createHeart() {
             const heart = document.createElement('div');
             heart.className = 'heart';
-            // Array com diferentes emojis de coração
             const hearts = ['❤️', '💖', '💕', '💞', '💓', '💗', '💜', '💙', '💚'];
             heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
             heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = Math.random() * 5 + 5 + 's'; // Duração entre 5 e 10 segundos
+            heart.style.animationDuration = Math.random() * 5 + 5 + 's';
             document.body.appendChild(heart);
-
-            // Remove o coração após a animação
             setTimeout(() => {
                 heart.remove();
             }, 10000);
         }
-
-        // Cria corações a cada 100ms
         setInterval(createHeart, 100);
     </script>
 </body>
 </html>
+"""
+
+# Função para executar comandos no terminal e capturar saída
+def run_command(command):
+    try:
+        result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Erro ao executar '{command}': {e.stderr}")
+
+# Atualiza pacotes no Termux
+print("Atualizando pacotes no Termux...")
+run_command("pkg update -y && pkg upgrade -y")
+
+# Verifica se o Node.js está instalado; se não, instala
+if subprocess.run("command -v node", shell=True, capture_output=True).returncode != 0:
+    print("Instalando Node.js...")
+    run_command("pkg install nodejs -y")
+else:
+    print("Node.js já está instalado.")
+
+# Cria a pasta coracoes_auto
+folder = "coracoes_auto"
+os.makedirs(folder, exist_ok=True)
+os.chdir(folder)
+print(f"Diretório '{folder}' criado e acessado.")
+
+# Cria o arquivo index.html
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+print("Arquivo index.html criado com sucesso.")
+
+# Instala o http-server se não estiver instalado
+if subprocess.run("command -v http-server", shell=True, capture_output=True).returncode != 0:
+    print("Instalando http-server...")
+    run_command("npm install -g http-server")
+else:
+    print("http-server já está instalado.")
+
+# Inicia o servidor
+print("Iniciando o servidor na porta 8080...")
+run_command("http-server -p 8080")
